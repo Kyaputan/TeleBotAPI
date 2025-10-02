@@ -132,7 +132,6 @@ def handle_photo(m):
         caption = (
             "<b>ผลวิเคราะห์</b>\n"
             f"{summary}\n\n"
-            "<b>ไฟล์</b>: <code>" + os.path.basename(out_path) + "</code>"
         )
         with open(out_path, "rb") as f:
             bot.send_photo(m.chat.id, f, caption=caption)
