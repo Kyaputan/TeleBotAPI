@@ -1,23 +1,17 @@
-import base64
 import json
 import logging
 import os
 from datetime import datetime
-from pathlib import Path
-from typing import Literal
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
-
+from helper.helper import to_data_url
 import config
 
-
 logger = logging.getLogger(__name__)
-
 
 def append_summary_log(item: dict) -> None:
     with open(config.SUMMARY_LOG, "a", encoding="utf-8") as f:
         f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
 
 def vlm() -> ChatOpenAI:
     return ChatOpenAI(
@@ -34,22 +28,6 @@ SYSTEM_PROMPT = (
     "ข้อกำหนดการเขียน: ภาษาไทย สุภาพ ไม่ฟุ้ง ใช้ถ้อยคำกะทัดรัด\n"
     "ห้ามแต่งเติมเกินข้อมูลที่เห็นจากภาพ"
 )
-
-# ---------- helpers ----------
-def to_data_url(input_path: str | Path, mime: Literal["image/jpeg","image/png","image/webp"] | None = None) -> str:
-    p = Path(input_path)
-    if not p.exists():
-        raise FileNotFoundError(f"ไม่พบไฟล์ภาพ: {p.resolve()}")
-    ext = p.suffix.lower()
-    if mime is None:
-        mime = {
-            ".jpg": "image/jpeg",
-            ".jpeg": "image/jpeg",
-            ".png": "image/png",
-            ".webp": "image/webp",
-        }.get(ext, "image/jpeg")
-    b64 = base64.b64encode(p.read_bytes()).decode("utf-8")
-    return f"data:{mime};base64,{b64}"
 
 def analyze_image_with_langchain(input_path: str) -> str:
     logger.info("Analyzing image", extra={"input_path": input_path})
@@ -74,7 +52,6 @@ def analyze_image_with_langchain(input_path: str) -> str:
         logger.error("Analysis failed", extra={"error": str(e)})
         return ""
 
-
 def process_image_pipeline(input_path: str):
     summary = analyze_image_with_langchain(input_path)
 
@@ -93,7 +70,6 @@ def process_image_pipeline(input_path: str):
     append_summary_log(log_item)
     logger.info("Image processed")
     return summary, out_path
-
 
 def synthesize_all_summaries(summaries: list[dict]) -> str:
     logger.info("Synthesizing all summaries", extra={"count": len(summaries)})
@@ -118,7 +94,6 @@ def synthesize_all_summaries(summaries: list[dict]) -> str:
                 )}
         ]),
     ]
-
     llm = vlm()
     resp = llm.invoke(messages)
     logger.info("Summary generated")
@@ -141,7 +116,6 @@ def llm_weather(weather: str) -> str:
                 )}
         ]),
     ]
-
     llm = vlm()
     resp = llm.invoke(messages)
     logger.info("Weather generated")
