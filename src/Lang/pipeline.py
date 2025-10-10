@@ -15,7 +15,7 @@ def append_summary_log(item: dict) -> None:
 
 def vlm() -> ChatOpenAI:
     return ChatOpenAI(
-        model="x-ai/grok-4-fast:free",
+        model="google/gemini-2.0-flash-001",
         api_key=config.OPENROUTER_API_KEY,
         base_url=config.OPENROUTER_BASE_URL,
         temperature=0.3,
